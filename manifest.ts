@@ -2,15 +2,16 @@ import {AuthenticationType} from '@codahq/packs-sdk';
 import {FeatureSet} from '@codahq/packs-sdk/dist/legacy_exports';
 import {PackCategory} from '@codahq/packs-sdk/dist/legacy_exports';
 import {PackDefinition} from '@codahq/packs-sdk';
-import {PackId} from '../../../types/ids';
 import {QuotaLimitType} from '@codahq/packs-sdk/dist/legacy_exports';
 import {formulas} from './formulas';
-import {getConnectionName} from '../auth';
-import {profileScopes} from '../auth';
+import {getConnectionName} from './auth';
+import {profileScopes} from './auth';
 import {syncTables} from './formulas';
 
+export const PackId = 100006;
+
 export const manifest: PackDefinition = {
-  id: PackId.Gmail,
+  id: PackId,
   name: 'Gmail',
   shortDescription: 'See your emails, and send new emails from your doc.',
   description:

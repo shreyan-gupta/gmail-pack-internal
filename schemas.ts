@@ -1,4 +1,4 @@
-import {PackId} from '../../../types/ids';
+import {PackId} from './manifest'
 import {ValueHintType} from '@codahq/packs-sdk';
 import {ValueType} from '@codahq/packs-sdk';
 import {makeObjectSchema} from '@codahq/packs-sdk';
@@ -6,7 +6,7 @@ import {makeReferenceSchemaFromObjectSchema} from '@codahq/packs-sdk';
 import {makeSchema} from '@codahq/packs-sdk';
 
 const threadIdentity = {
-  packId: PackId.Gmail,
+  packId: PackId,
   name: 'Thread',
 };
 
@@ -28,7 +28,7 @@ export const emailAddressArraySchema = makeSchema({
 export const messageSchema = makeObjectSchema({
   type: ValueType.Object,
   identity: {
-    packId: PackId.Gmail,
+    packId: PackId,
     name: 'Email',
   },
   primary: 'subject',
