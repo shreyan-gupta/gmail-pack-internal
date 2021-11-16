@@ -8,6 +8,7 @@
     "base64url": "^3.0.1",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "cheerio": "^1.0.0-rc.10",
     "email-addresses": "^5.0.0",
     "emailjs-mime-builder": "^2.0.5",
     "eslint-plugin-ban": "^1.6.0",

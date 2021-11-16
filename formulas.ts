@@ -346,10 +346,11 @@ export const syncTables = [
         {q, pageToken: context.sync.continuation?.nextPageToken as string | undefined, maxResults: 40},
         context,
       );
+      const labels = await getLabels(context);
       const threadContents = await Promise.all((threads || []).map(({id}) => getThread(id, context)));
       return {
         // TODO: fix types.
-        result: threadContents.map(thread => threadToSchema(thread, preferPlainText)) as any,
+        result: threadContents.map(thread => threadToSchema(thread, preferPlainText, labels)) as any,
         continuation: nextPageToken ? {nextPageToken} : undefined,
       };
     },

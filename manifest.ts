@@ -17,7 +17,7 @@ export const manifest: PackDefinition = {
   description:
     'Pull in emails from your inbox, filter and search messages, and send new emails directly ' + 'from your doc.',
   permissionsDescription: 'Read and send email.',
-  version: '1.0.0',
+  version: '2.0.1',
   category: PackCategory.Communication,
   logoPath: 'gmail.png',
   defaultAuthentication: {

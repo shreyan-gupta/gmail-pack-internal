@@ -5,6 +5,7 @@ import {Part} from './types';
 import {Thread} from './types';
 import {UserVisibleError} from '@codahq/packs-sdk';
 import * as emailparser from 'email-addresses';
+import * as cheerio from 'cheerio';
 
 interface MimeBodies {
   plain?: string;
@@ -20,6 +21,18 @@ function getLabelName(labelId: string, labels: Label[]): string {
   return label ? label.name : labelId;
 }
 
+function removeGmailQuote(htmlTextBody: string): string {
+  const $ = cheerio.load(htmlTextBody);
+  $('div.gmail_quote').replaceWith($('<hr>'));
+  return $.html();
+}
+
+function htmlDecode(encodedText: string): string {
+  const $ = cheerio.load('<textarea></textarea>');
+  $('textarea').html(encodedText);
+  return $.text();
+}
+
 export function messageToSchema(message: Message, preferPlainText: boolean, labels?: Label[]) {
   const headers: any = {};
   ((message.payload && message.payload.headers) || []).forEach((header: any) => {
@@ -30,11 +43,12 @@ export function messageToSchema(message: Message, preferPlainText: boolean, labe
 
   // Strip out giant style elements (Outlook)
   const htmlBody = bodies.html && bodies.html.replace(/<style.*<\/style>/gimsu, '');
+  const strippedHtmlBody = removeGmailQuote(htmlBody);
   const textBody = bodies.plain && escapeHtmlEntities(bodies.plain);
-  const text = (preferPlainText ? textBody || htmlBody : htmlBody || textBody) || '';
+  const text = (preferPlainText ? textBody || strippedHtmlBody : strippedHtmlBody || textBody) || '';
 
   return {
-    snippet: message.snippet,
+    snippet: htmlDecode(message.snippet),
     id: message.id,
     labels: (message.labelIds || []).map(labelId => (labels ? getLabelName(labelId, labels) : labelId)),
     to: parseManyAddresses(headers.To),
@@ -47,7 +61,7 @@ export function messageToSchema(message: Message, preferPlainText: boolean, labe
       id: message.threadId,
       subject: headers.Subject,
     },
-    text: text.substr(0, 4 * 1024),
+    text,
   };
 }
 
@@ -106,31 +120,33 @@ function getMessageBodies(part?: Part): MimeBodies {
   return bodies;
 }
 
-export function threadToSchema(thread: Thread, preferPlainText: boolean) {
-  const messages = thread.messages.map(msg => messageToSchema(msg, preferPlainText));
+export function threadToSchema(thread: Thread, preferPlainText: boolean, labels?: Label[]) {
+  const messages = thread.messages.map(msg => messageToSchema(msg, preferPlainText, labels));
 
-  const dates = messages.map(msg => Date.parse(msg.date).valueOf());
-  const firstDate = dates.length ? Math.min(...dates) : undefined;
-  const lastDate = dates.length ? Math.max(...dates) : undefined;
+  const firstDate = Math.min(...thread.messages.map(msg => msg.internalDate));
+  const lastDate = Math.max(...thread.messages.map(msg => msg.internalDate));
+
   const subject = messages.length ? messages[0].subject : '';
   const recipients: Map<string, EmailAddress> = new Map();
-  // tslint:disable-next-line
-  const messageRefs: Array<{id: string; subject: string}> = [];
+
   messages.forEach(msg => {
     if (msg.from) {
       recipients.set(msg.from.email, msg.from);
     }
     [msg.to, msg.cc, msg.bcc].forEach(arr => arr.forEach(recp => recipients.set(recp.email, recp)));
-    messageRefs.push({id: msg.id, subject: msg.subject});
   });
+
+  let threadLabels = new Set<string>();
+  messages.forEach(msg => {msg.labels.forEach(label => threadLabels.add(label))});
 
   return {
     id: thread.id,
     startDate: firstDate ? new Date(firstDate).toUTCString() : undefined,
     endDate: lastDate ? new Date(lastDate).toUTCString() : undefined,
-    snippet: thread.snippet,
+    snippet: messages[messages.length - 1].snippet, // snippet of last message
     subject,
-    messages: messageRefs,
+    messages,
+    labels: Array.from(threadLabels),
     recipients: [...recipients.values()],
   };
 }

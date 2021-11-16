@@ -2,7 +2,6 @@ import {PackId} from './manifest'
 import {ValueHintType} from '@codahq/packs-sdk';
 import {ValueType} from '@codahq/packs-sdk';
 import {makeObjectSchema} from '@codahq/packs-sdk';
-import {makeReferenceSchemaFromObjectSchema} from '@codahq/packs-sdk';
 import {makeSchema} from '@codahq/packs-sdk';
 
 const threadIdentity = {
@@ -61,6 +60,11 @@ export const messageSchema = makeObjectSchema({
   },
 });
 
+export const messageArraySchema = makeSchema({
+  type: ValueType.Array,
+  items: messageSchema,
+});
+
 export const threadListSchema = makeSchema({
   type: ValueType.Array,
   items: makeObjectSchema({
@@ -87,7 +91,11 @@ export const threadSchema = makeObjectSchema({
     subject: {type: ValueType.String},
     snippet: {type: ValueType.String},
     recipients: emailAddressArraySchema,
-    messages: {type: ValueType.Array, items: makeReferenceSchemaFromObjectSchema(messageSchema)},
+    messages: messageArraySchema,
+    labels: {
+      type: ValueType.Array,
+      items: {type: ValueType.String},
+    },
   },
 });
 

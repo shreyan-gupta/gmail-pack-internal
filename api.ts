@@ -248,7 +248,7 @@ export async function getMessages(options: GetObjectsOptions, context: Execution
 export async function getThread(id: string, context: ExecutionContext): Promise<Thread> {
   const request: FetchRequest = {
     method: 'GET',
-    url: `https://www.googleapis.com/gmail/v1/users/me/threads/${id}?format=metadata`,
+    url: `https://www.googleapis.com/gmail/v1/users/me/threads/${id}?format=full`,
     headers: {
       'Content-Type': 'application/json',
     },
