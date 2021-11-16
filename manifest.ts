@@ -8,16 +8,16 @@ import {getConnectionName} from './auth';
 import {profileScopes} from './auth';
 import {syncTables} from './formulas';
 
-export const PackId = 100006;
+export const PackId = 100007;
 
 export const manifest: PackDefinition = {
   id: PackId,
-  name: 'Gmail',
+  name: 'Gmail-Internal',
   shortDescription: 'See your emails, and send new emails from your doc.',
   description:
     'Pull in emails from your inbox, filter and search messages, and send new emails directly ' + 'from your doc.',
   permissionsDescription: 'Read and send email.',
-  version: '6.3.4',
+  version: '1.0.0',
   category: PackCategory.Communication,
   logoPath: 'gmail.png',
   defaultAuthentication: {
@@ -44,7 +44,7 @@ export const manifest: PackDefinition = {
   exampleImages: ['gmail_example1.png', 'gmail_example2.png'],
   formulaNamespace: 'Gmail',
   formulas,
-  networkDomains: ['googleapis.com'],
+  networkDomains: ['www.googleapis.com'],
   formats: [],
   syncTables,
   // If you update these, remember to run tools/generate_quotas_runtime_config.ts.
